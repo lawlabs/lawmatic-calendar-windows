@@ -1,0 +1,27 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout app
+        uses: actions/checkout@v4
+        with:
+          path: lawmatic-calendar-windows
+      # Publish kalends-winui first, under the same GitHub account or org.
+      - name: Checkout Kalends
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/kalends-winui
+          path: kalends-winui
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - name: Build
+        working-directory: lawmatic-calendar-windows
+        run: dotnet build src/LawMatic.Calendar/LawMatic.Calendar.csproj -c Release -p:Platform=x64 --nologo

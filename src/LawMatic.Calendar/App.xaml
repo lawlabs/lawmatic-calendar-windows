@@ -1,0 +1,53 @@
+<Application x:Class="LawMatic_Calendar.App" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+ <Application.Resources>
+  <ResourceDictionary>
+   <ResourceDictionary.MergedDictionaries>
+    <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls"/>
+   </ResourceDictionary.MergedDictionaries>
+   <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Light">
+     <SolidColorBrush x:Key="ShellBrush" Color="#F5F6F8"/>
+     <SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFF"/>
+     <SolidColorBrush x:Key="MutedBrush" Color="#777E8C"/>
+     <SolidColorBrush x:Key="LineBrush" Color="#E9ECF1"/>
+     <SolidColorBrush x:Key="SubtleLineBrush" Color="#F3F4F7"/>
+     <SolidColorBrush x:Key="BrandBrush" Color="#347967"/>
+     <SolidColorBrush x:Key="OnBrandBrush" Color="#FFFFFF"/>
+     <SolidColorBrush x:Key="TodayBrush" Color="#F1F8F5"/>
+     <SolidColorBrush x:Key="WeekendBrush" Color="#FAFBFD"/>
+     <SolidColorBrush x:Key="TextBrush" Color="#252D3A"/>
+     <SolidColorBrush x:Key="NowBrush" Color="#D65860"/>
+    </ResourceDictionary>
+    <ResourceDictionary x:Key="Dark">
+     <SolidColorBrush x:Key="ShellBrush" Color="#1D2229"/>
+     <SolidColorBrush x:Key="SurfaceBrush" Color="#242A33"/>
+     <SolidColorBrush x:Key="MutedBrush" Color="#A0AAB8"/>
+     <SolidColorBrush x:Key="LineBrush" Color="#39424E"/>
+     <SolidColorBrush x:Key="SubtleLineBrush" Color="#2C343F"/>
+     <SolidColorBrush x:Key="BrandBrush" Color="#80C8AE"/>
+     <SolidColorBrush x:Key="OnBrandBrush" Color="#102A21"/>
+     <SolidColorBrush x:Key="TodayBrush" Color="#263B37"/>
+     <SolidColorBrush x:Key="WeekendBrush" Color="#21262E"/>
+     <SolidColorBrush x:Key="TextBrush" Color="#EDF1F7"/>
+     <SolidColorBrush x:Key="NowBrush" Color="#FF929A"/>
+    </ResourceDictionary>
+    <ResourceDictionary x:Key="HighContrast">
+     <SolidColorBrush x:Key="ShellBrush" Color="{ThemeResource SystemColorWindowColor}"/>
+     <SolidColorBrush x:Key="SurfaceBrush" Color="{ThemeResource SystemColorWindowColor}"/>
+     <SolidColorBrush x:Key="MutedBrush" Color="{ThemeResource SystemColorWindowTextColor}"/>
+     <SolidColorBrush x:Key="LineBrush" Color="{ThemeResource SystemColorWindowTextColor}"/>
+     <SolidColorBrush x:Key="SubtleLineBrush" Color="{ThemeResource SystemColorWindowTextColor}"/>
+     <SolidColorBrush x:Key="BrandBrush" Color="{ThemeResource SystemColorHighlightColor}"/>
+     <SolidColorBrush x:Key="OnBrandBrush" Color="{ThemeResource SystemColorHighlightTextColor}"/>
+     <SolidColorBrush x:Key="TodayBrush" Color="{ThemeResource SystemColorWindowColor}"/>
+     <SolidColorBrush x:Key="WeekendBrush" Color="{ThemeResource SystemColorWindowColor}"/>
+     <SolidColorBrush x:Key="TextBrush" Color="{ThemeResource SystemColorWindowTextColor}"/>
+     <SolidColorBrush x:Key="NowBrush" Color="{ThemeResource SystemColorHighlightColor}"/>
+    </ResourceDictionary>
+   </ResourceDictionary.ThemeDictionaries>
+   <FontFamily x:Key="ContentControlThemeFontFamily">Segoe UI</FontFamily>
+   <FontFamily x:Key="XamlAutoFontFamily">Segoe UI</FontFamily>
+   <Color x:Key="SystemAccentColor">#347967</Color>
+  </ResourceDictionary>
+ </Application.Resources>
+</Application>

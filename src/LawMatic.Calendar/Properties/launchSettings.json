@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "LawMatic.Calendar (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "LawMatic.Calendar (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

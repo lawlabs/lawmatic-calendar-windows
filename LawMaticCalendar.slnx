@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/LawMatic.Calendar/LawMatic.Calendar.csproj" />
+  </Folder>
+  <Project Path="../kalends-winui/src/Kalends.WinUI/Kalends.WinUI.csproj" />
+</Solution>

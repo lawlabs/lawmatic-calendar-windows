@@ -1,0 +1,7 @@
+description: Native LawMatic calendar for Windows, built on Kalends.WinUI.
+homepage: ""
+topics:
+  - winui3
+  - calendar
+  - csharp
+license: MIT
