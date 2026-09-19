@@ -24,4 +24,5 @@ jobs:
           dotnet-version: "10.0.x"
       - name: Build
         working-directory: lawmatic-calendar-windows
-        run: dotnet build src/LawMatic.Calendar/LawMatic.Calendar.csproj -c Release -p:Platform=x64 --nologo
+        # This validates compilation; trimming belongs to a self-contained publish.
+        run: dotnet build src/LawMatic.Calendar/LawMatic.Calendar.csproj -c Release -p:Platform=x64 -p:PublishTrimmed=false --nologo
