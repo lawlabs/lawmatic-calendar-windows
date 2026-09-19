@@ -1,14 +1,34 @@
 <Page x:Class="LawMatic_Calendar.MainPage"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
- xmlns:kalends="using:Kalends" Language="en-US">
+ xmlns:kalends="using:Kalends" xmlns:local="using:LawMatic_Calendar.Controls" Language="en-US">
  <Grid x:Name="Root" Background="{ThemeResource ShellBrush}">
   <Grid.ColumnDefinitions><ColumnDefinition x:Name="SidebarColumn" Width="260"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
   <Grid x:Name="Sidebar" Padding="20,22,20,14" RowSpacing="20">
    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-   <Button Grid.Row="0" Content="＋   New event" HorizontalAlignment="Stretch" Height="42" Style="{StaticResource AccentButtonStyle}" Click="New_Click" ToolTipService.ToolTip="Create event · Ctrl+N" AutomationProperties.AutomationId="NewEvent"/>
-   <Viewbox Grid.Row="1" Height="252" Stretch="Uniform"><CalendarView x:Name="MiniCalendar" Width="296" MinWidth="296" Height="330" FirstDayOfWeek="Monday" SelectionMode="Single" IsGroupLabelVisible="False" CalendarItemBorderThickness="0" DayItemFontSize="16" MonthYearItemFontSize="18" SelectedDatesChanged="MiniCalendar_SelectedDatesChanged"><CalendarView.Resources><Thickness x:Key="CalendarViewWeekDayPadding">0</Thickness><Thickness x:Key="CalendarViewWeekDayMargin">0</Thickness></CalendarView.Resources></CalendarView></Viewbox>
-   <StackPanel Grid.Row="2" Spacing="8"><TextBlock Text="MY CALENDARS" FontSize="10" CharacterSpacing="100" Foreground="{ThemeResource MutedBrush}" Margin="8,0,0,8"/><StackPanel x:Name="CalendarFilters" Spacing="3"/></StackPanel>
+   <Button x:Name="NewEventButton" Grid.Row="0" Content="＋   New event" HorizontalAlignment="Stretch" Height="42" Style="{StaticResource AccentButtonStyle}" Click="New_Click" ToolTipService.ToolTip="Create event · Ctrl+N" AutomationProperties.AutomationId="NewEvent"/>
+   <Viewbox x:Name="MiniCalendarHost" Grid.Row="1" Height="252" Stretch="Uniform"><CalendarView x:Name="MiniCalendar" Width="296" MinWidth="296" Height="330" FirstDayOfWeek="Monday" SelectionMode="Single" IsGroupLabelVisible="False" CalendarItemBorderThickness="0" DayItemFontSize="16" MonthYearItemFontSize="18" SelectedDatesChanged="MiniCalendar_SelectedDatesChanged"><CalendarView.Resources><Thickness x:Key="CalendarViewWeekDayPadding">0</Thickness><Thickness x:Key="CalendarViewWeekDayMargin">0</Thickness></CalendarView.Resources></CalendarView></Viewbox>
+   <StackPanel x:Name="CalendarFiltersSection" Grid.Row="2" Spacing="8"><TextBlock Text="MY CALENDARS" FontSize="10" CharacterSpacing="100" Foreground="{ThemeResource MutedBrush}" Margin="8,0,0,8"/><StackPanel x:Name="CalendarFilters" Spacing="3"/></StackPanel>
+   <StackPanel x:Name="TimelineSidebar" Grid.RowSpan="4" Spacing="22" Visibility="Collapsed">
+    <TextBlock Text="СУДЕБНЫЕ ДЕЛА" FontSize="10" CharacterSpacing="100" Foreground="{ThemeResource MutedBrush}" Margin="4,8,0,0"/>
+    <Border Background="{ThemeResource TodayBrush}" BorderBrush="{ThemeResource BrandBrush}" BorderThickness="3,0,0,0" CornerRadius="5" Padding="14,14">
+     <StackPanel Spacing="9">
+      <TextBlock Text="А40-87432/2026" FontFamily="Consolas" FontSize="12" Foreground="{ThemeResource BrandBrush}"/>
+      <TextBlock Text="Альфа → Вектор" FontSize="15" FontWeight="SemiBold"/>
+      <TextBlock Text="Договор поставки" FontSize="12" Foreground="{ThemeResource MutedBrush}"/>
+      <TextBlock Text="●  Апелляция" FontSize="11" Foreground="{ThemeResource BrandBrush}"/>
+     </StackPanel>
+    </Border>
+    <Border Height="1" Background="{ThemeResource LineBrush}"/>
+    <StackPanel Spacing="10" Margin="4,0">
+     <TextBlock Text="БЛИЖАЙШЕЕ СОБЫТИЕ" FontSize="10" CharacterSpacing="75" Foreground="{ThemeResource MutedBrush}"/>
+     <TextBlock Text="29 сентября" FontSize="22" FontWeight="SemiBold"/>
+     <TextBlock Text="11:00 · Судебное заседание" FontSize="12"/>
+     <TextBlock Text="9-й арбитражный АС · зал 12" FontSize="11" Foreground="{ThemeResource MutedBrush}" TextWrapping="Wrap"/>
+    </StackPanel>
+    <Border Height="1" Background="{ThemeResource LineBrush}"/>
+    <TextBlock Text="Демоданные на 19 сентября 2026.&#x0a;Даты будущих стадий условные." FontSize="11" Foreground="{ThemeResource MutedBrush}" TextWrapping="Wrap" Margin="4,0"/>
+   </StackPanel>
    <StackPanel Grid.Row="4" Spacing="12"><Border Height="1" Background="{ThemeResource LineBrush}"/><TextBlock Text="Your day. Your rhythm." FontSize="12" Foreground="{ThemeResource MutedBrush}"/><Grid><TextBlock Text="Calendar on Kalends.WinUI" FontSize="10" Foreground="{ThemeResource MutedBrush}"/><Button HorizontalAlignment="Right" Padding="5" Margin="0,-8,0,0" Click="Help_Click" AutomationProperties.Name="How to use"><FontIcon Glyph="&#xE897;" FontSize="14"/></Button></Grid></StackPanel>
   </Grid>
   <Border Grid.Column="1" Background="{ThemeResource SurfaceBrush}" BorderBrush="{ThemeResource LineBrush}" BorderThickness="1,0,0,0">
@@ -22,11 +42,12 @@
     </Grid>
     <Grid Grid.Row="1" Padding="24,0,24,14" ColumnSpacing="16">
      <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-     <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"><Button Content="Today" Click="Today_Click" ToolTipService.ToolTip="Go to today · Ctrl+T"/><Button Click="Previous_Click" AutomationProperties.Name="Previous period" ToolTipService.ToolTip="Previous period"><FontIcon Glyph="&#xE76B;" FontSize="12"/></Button><Button Click="Next_Click" AutomationProperties.Name="Next period" ToolTipService.ToolTip="Next period"><FontIcon Glyph="&#xE76C;" FontSize="12"/></Button></StackPanel>
-     <SelectorBar x:Name="ViewSelector" Grid.Column="1" HorizontalAlignment="Center" SelectionChanged="View_Changed"><SelectorBarItem Text="Agenda" Tag="Agenda"/><SelectorBarItem Text="Day" Tag="Day"/><SelectorBarItem Text="Week" Tag="Week" IsSelected="True"/><SelectorBarItem Text="Month" Tag="Month"/><SelectorBarItem Text="Year" Tag="Year"/></SelectorBar>
-     <Button Grid.Column="2" ToolTipService.ToolTip="View options" AutomationProperties.Name="View options"><FontIcon Glyph="&#xE713;" FontSize="16"/><Button.Flyout><Flyout><StackPanel Width="230" Spacing="14"><TextBlock Text="Calendar settings" FontWeight="SemiBold"/><ToggleSwitch x:Name="WeekendToggle" Header="Show weekends" IsOn="True" Toggled="Options_Changed"/><TextBlock Text="Time grid scale"/><Slider x:Name="ZoomSlider" Minimum="44" Maximum="100" Value="64" StepFrequency="4" ValueChanged="Zoom_Changed" AutomationProperties.Name="Hour height"/><TextBlock Text="Weeks start on Monday.&#x0a;Events snap to 15-minute intervals." FontSize="12" TextWrapping="Wrap" Foreground="{ThemeResource MutedBrush}"/></StackPanel></Flyout></Button.Flyout></Button>
+     <StackPanel x:Name="DateNavigation" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"><Button Content="Today" Click="Today_Click" ToolTipService.ToolTip="Go to today · Ctrl+T"/><Button Click="Previous_Click" AutomationProperties.Name="Previous period" ToolTipService.ToolTip="Previous period"><FontIcon Glyph="&#xE76B;" FontSize="12"/></Button><Button Click="Next_Click" AutomationProperties.Name="Next period" ToolTipService.ToolTip="Next period"><FontIcon Glyph="&#xE76C;" FontSize="12"/></Button></StackPanel>
+     <SelectorBar x:Name="ViewSelector" Grid.Column="1" HorizontalAlignment="Center" SelectionChanged="View_Changed"><SelectorBarItem Text="Agenda" Tag="Agenda"/><SelectorBarItem Text="Day" Tag="Day"/><SelectorBarItem Text="Week" Tag="Week" IsSelected="True"/><SelectorBarItem Text="Month" Tag="Month"/><SelectorBarItem Text="Year" Tag="Year"/><SelectorBarItem Text="Судебный таймлайн" Tag="CourtTimeline"/></SelectorBar>
+     <Button x:Name="CalendarOptions" Grid.Column="2" ToolTipService.ToolTip="View options" AutomationProperties.Name="View options"><FontIcon Glyph="&#xE713;" FontSize="16"/><Button.Flyout><Flyout><StackPanel Width="230" Spacing="14"><TextBlock Text="Calendar settings" FontWeight="SemiBold"/><ToggleSwitch x:Name="WeekendToggle" Header="Show weekends" IsOn="True" Toggled="Options_Changed"/><TextBlock Text="Time grid scale"/><Slider x:Name="ZoomSlider" Minimum="44" Maximum="100" Value="64" StepFrequency="4" ValueChanged="Zoom_Changed" AutomationProperties.Name="Hour height"/><TextBlock Text="Weeks start on Monday.&#x0a;Events snap to 15-minute intervals." FontSize="12" TextWrapping="Wrap" Foreground="{ThemeResource MutedBrush}"/></StackPanel></Flyout></Button.Flyout></Button>
     </Grid>
     <kalends:KalendsView x:Name="Scheduler" Grid.Row="2"/>
+    <local:CourtTimelineView x:Name="CourtTimeline" Grid.Row="2" Visibility="Collapsed"/>
     <Grid Grid.Row="3" Background="{ThemeResource ShellBrush}" Padding="20,0" ColumnSpacing="12"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock x:Name="StatusText" Text="Double-click an empty time slot to create an event" FontSize="11" VerticalAlignment="Center" Foreground="{ThemeResource MutedBrush}" TextTrimming="CharacterEllipsis"/><Button Grid.Column="1" x:Name="UndoButton" Content="↶ Undo" Click="Undo_Click" IsEnabled="False" Padding="8,2" FontSize="11" ToolTipService.ToolTip="Undo change · Ctrl+Z"/><TextBlock Grid.Column="2" x:Name="ZoneText" FontSize="10" VerticalAlignment="Center" Foreground="{ThemeResource MutedBrush}"/></Grid>
    </Grid>
   </Border>

@@ -18,7 +18,7 @@ public sealed partial class MainPage : Page
     private static readonly CultureInfo DisplayCulture = CultureInfo.GetCultureInfo("en-US");
     private DateTime _date = DateTime.Today;
     private KalendsMode _mode = KalendsMode.Week;
-    private bool _ready, _syncing, _dialogOpen, _sidebarHidden;
+    private bool _ready, _syncing, _dialogOpen, _sidebarHidden, _courtTimeline;
 
     public MainPage()
     {
@@ -27,7 +27,7 @@ public sealed partial class MainPage : Page
         Scheduler.FirstDayOfWeek = DayOfWeek.Monday;
         Scheduler.CreateEvent = draft => new CalendarEvent { Start = draft.Start, End = draft.End, IsAllDay = draft.IsAllDay };
         _ready = true;
-        foreach (var key in new[] { VirtualKey.N, VirtualKey.T, VirtualKey.F, VirtualKey.Z, VirtualKey.Number1, VirtualKey.Number2, VirtualKey.Number3, VirtualKey.Number4, VirtualKey.Number5 })
+        foreach (var key in new[] { VirtualKey.N, VirtualKey.T, VirtualKey.F, VirtualKey.Z, VirtualKey.Number1, VirtualKey.Number2, VirtualKey.Number3, VirtualKey.Number4, VirtualKey.Number5, VirtualKey.Number6 })
         {
             var shortcut = new KeyboardAccelerator { Key = key, Modifiers = VirtualKeyModifiers.Control };
             shortcut.Invoked += (_, args) => args.Handled = RunShortcut(key);
@@ -52,7 +52,7 @@ public sealed partial class MainPage : Page
             EditEvent(copy);
         };
         Scheduler.NavigateRequested += (_, e) => { _date = e.Date; SetMode(e.Mode); };
-        Scheduler.StatusChanged += (_, text) => StatusText.Text = text;
+        Scheduler.StatusChanged += (_, text) => { if (!_courtTimeline) StatusText.Text = text; };
         Loaded += (_, _) =>
         {
             DispatcherQueue.TryEnqueue(() => ApplyTheme(ActualTheme));
@@ -111,6 +111,18 @@ public sealed partial class MainPage : Page
     private void Update(bool resetScroll = false)
     {
         if (!_ready) return;
+        Scheduler.Visibility = _courtTimeline ? Visibility.Collapsed : Visibility.Visible;
+        CourtTimeline.Visibility = _courtTimeline ? Visibility.Visible : Visibility.Collapsed;
+        TimelineSidebar.Visibility = _courtTimeline ? Visibility.Visible : Visibility.Collapsed;
+        foreach (var element in new FrameworkElement[] { NewEventButton, MiniCalendarHost, CalendarFiltersSection, DateNavigation, CalendarOptions, SearchBox, UndoButton })
+            element.Visibility = _courtTimeline ? Visibility.Collapsed : Visibility.Visible;
+        if (_courtTimeline)
+        {
+            PeriodTitle.Text = "Судебный таймлайн";
+            PeriodSubtitle.Text = "Стадии, события и дальнейший ход дела";
+            StatusText.Text = "Демоданные · 19 сентября 2026 · Нажмите на стадию или событие, чтобы увидеть детали";
+            return;
+        }
         var first = KalendsDate.StartOfWeek(_date, DayOfWeek.Monday);
         string Capital(string value) => DisplayCulture.TextInfo.ToTitleCase(value);
         PeriodTitle.Text = _mode switch
@@ -152,11 +164,22 @@ public sealed partial class MainPage : Page
 
     private void SetMode(KalendsMode mode)
     {
+        if (_courtTimeline) StatusText.Text = "Double-click an empty time slot to create an event";
+        _courtTimeline = false;
         _mode = mode;
         _syncing = true;
         ViewSelector.SelectedItem = ViewSelector.Items.First(x => (string)x.Tag == mode.ToString());
         _syncing = false;
         Update(true);
+    }
+
+    private void ShowCourtTimeline()
+    {
+        _courtTimeline = true;
+        _syncing = true;
+        ViewSelector.SelectedItem = ViewSelector.Items.First(x => (string)x.Tag == "CourtTimeline");
+        _syncing = false;
+        Update();
     }
 
     private void Navigate(int direction)
@@ -179,8 +202,8 @@ public sealed partial class MainPage : Page
     {
         if (_ready && !_syncing && sender.SelectedItem?.Tag is string mode)
         {
-            _mode = Enum.Parse<KalendsMode>(mode);
-            Update(true);
+            if (mode == "CourtTimeline") ShowCourtTimeline();
+            else SetMode(Enum.Parse<KalendsMode>(mode));
         }
     }
     private void MiniCalendar_SelectedDatesChanged(CalendarView sender, CalendarViewSelectedDatesChangedEventArgs args)
@@ -222,6 +245,7 @@ public sealed partial class MainPage : Page
     private bool RunShortcut(VirtualKey key)
     {
         if (_dialogOpen) return false;
+        if (_courtTimeline && key is VirtualKey.N or VirtualKey.T or VirtualKey.F or VirtualKey.Z) return false;
         switch (key)
         {
             case VirtualKey.N: New_Click(this, new()); break;
@@ -235,6 +259,7 @@ public sealed partial class MainPage : Page
             case VirtualKey.Number3: SetMode(KalendsMode.Week); break;
             case VirtualKey.Number4: SetMode(KalendsMode.Month); break;
             case VirtualKey.Number5: SetMode(KalendsMode.Year); break;
+            case VirtualKey.Number6: ShowCourtTimeline(); break;
             default: return false;
         }
         return true;
@@ -253,7 +278,7 @@ public sealed partial class MainPage : Page
                 CloseButtonText = "Got it",
                 Content = new TextBlock
                 {
-                    Text = "Double-click the grid to create an event.\nClick an event to view or edit it.\nDrag an event to change its date and time.\nDrag its top or bottom edge to adjust its duration in 15-minute steps.\nIn Month view, drag events between days.\nEsc cancels a drag. Ctrl+Z undoes a change.\n\nCtrl+N — new event\nCtrl+T — today\nCtrl+F — search\nCtrl+1…5 — switch views\nAlt+arrow keys — move the focused event\nAlt+Shift+↑/↓ — adjust duration\n\nThe grid is drawn by Kalends.WinUI. Changes are kept in memory until the app closes.",
+                    Text = "Double-click the grid to create an event.\nClick an event to view or edit it.\nDrag an event to change its date and time.\nDrag its top or bottom edge to adjust its duration in 15-minute steps.\nIn Month view, drag events between days.\nEsc cancels a drag. Ctrl+Z undoes a change.\n\nCtrl+N — new event\nCtrl+T — today\nCtrl+F — search\nCtrl+1…5 — switch calendar views\nCtrl+6 — court timeline demo\nAlt+arrow keys — move the focused event\nAlt+Shift+↑/↓ — adjust duration\n\nThe grid is drawn by Kalends.WinUI. Changes are kept in memory until the app closes.",
                     TextWrapping = TextWrapping.Wrap,
                     FontSize = 14
                 }

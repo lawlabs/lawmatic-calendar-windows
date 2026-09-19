@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LawMatic · Судебный таймлайн</title>
+  <style>
+    :root { color-scheme: light; --shell:#f5f6f8; --surface:#fff; --muted:#777e8c; --line:#e9ecf1; --subtle:#f3f4f7; --text:#252d3a; --brand:#347967; --today:#f1f8f5; --now:#d65860; --blue:#3979bb; --green:#347967; --purple:#77629f; --blue-bg:#e6eef7; --green-bg:#e5efeb; --purple-bg:#eeeaf5; }
+    [data-theme="dark"] { color-scheme:dark; --shell:#1d2229; --surface:#242a33; --muted:#a0aab8; --line:#39424e; --subtle:#2c343f; --text:#edf1f7; --brand:#80c8ae; --today:#263b37; --now:#ff929a; --blue:#7cb3f1; --green:#80c8ae; --purple:#b5a1de; --blue-bg:#2b4057; --green-bg:#2d443f; --purple-bg:#3c354c; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--surface); color:var(--text); font:13px/1.4 "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif; }
+    button, input { font:inherit; color:inherit; }
+    button { cursor:pointer; border:1px solid var(--line); border-radius:5px; background:var(--surface); padding:7px 11px; }
+    button:hover { background:var(--shell); }
+    button:disabled { cursor:default; opacity:.35; }
+    button:focus-visible, a:focus-visible { outline:2px solid var(--brand); outline-offset:3px; }
+    .titlebar { height:34px; display:flex; align-items:center; gap:10px; background:var(--shell); padding:0 18px; font-size:12px; }
+    .app-mark { color:var(--brand); font-size:18px; }
+    .preview-label { margin-left:auto; color:var(--muted); font-size:10px; }
+    .window-controls { display:flex; gap:28px; margin-left:32px; color:var(--muted); }
+    .app { display:grid; grid-template-columns:244px minmax(0,1fr); min-height:calc(100vh - 34px); }
+    aside { background:var(--shell); border-right:1px solid var(--line); padding:28px 20px 18px; display:flex; flex-direction:column; gap:24px; }
+    .eyebrow { color:var(--muted); font-size:10px; letter-spacing:.09em; }
+    .case-nav { background:var(--today); border-left:3px solid var(--brand); border-radius:5px; padding:16px 13px; display:grid; gap:10px; }
+    .case-nav strong { font-weight:600; font-size:15px; }
+    .mono { font-family:Consolas,"SFMono-Regular",monospace; font-size:12px; color:var(--brand); }
+    .muted { color:var(--muted); }
+    .brand { color:var(--brand); }
+    .divider { border-top:1px solid var(--line); }
+    .next-event { padding:0 4px; display:grid; gap:8px; }
+    .next-date { font-size:23px; font-weight:600; letter-spacing:-.035em; margin-top:6px; }
+    .demo-note { font-size:11px; color:var(--muted); line-height:1.8; padding:0 4px; }
+    .aside-footer { margin-top:auto; padding-top:70px; color:var(--muted); font-size:11px; }
+    .aside-footer div { padding-top:16px; }
+    main { min-width:0; display:flex; flex-direction:column; }
+    .heading { padding:21px 24px 12px; display:flex; align-items:center; gap:18px; }
+    .heading h1 { margin:0 0 3px; font-size:27px; letter-spacing:-.035em; font-weight:600; }
+    .heading p { margin:0; font-size:12px; color:var(--muted); }
+    .icon-button { width:34px; height:33px; display:grid; place-content:center; padding:0; }
+    .theme { margin-left:auto; font-size:18px; }
+    .tabs { display:flex; justify-content:center; gap:9px; padding:0 24px 13px; border-bottom:1px solid var(--line); overflow-x:auto; white-space:nowrap; }
+    .tabs span { padding:10px 12px; }
+    .tabs .active { position:relative; font-weight:600; }
+    .tabs .active::after { content:""; position:absolute; bottom:0; width:26px; height:3px; border-radius:3px; background:var(--brand); left:calc(50% - 13px); }
+    .workspace { padding:23px 24px 18px; display:grid; gap:18px; flex:1; align-content:start; }
+    .case-header { display:flex; align-items:center; gap:24px; justify-content:space-between; }
+    .case-meta { display:flex; align-items:center; gap:12px; }
+    .badge { border-radius:4px; background:var(--today); color:var(--brand); padding:3px 8px; font-size:10px; }
+    h2 { font-size:22px; margin:8px 0 5px; font-weight:600; letter-spacing:-.025em; }
+    .subject { color:var(--muted); font-size:12px; }
+    .amount { text-align:right; flex-shrink:0; }
+    .amount strong { display:block; font-size:23px; font-weight:600; margin:3px 0; letter-spacing:-.025em; }
+    .toolbar { display:flex; align-items:center; gap:13px; }
+    .toolbar strong { font-weight:600; font-size:14px; }
+    .toolbar .count { color:var(--muted); font-size:11px; }
+    .plan { padding:5px 10px; font-size:11px; }
+    .plan[aria-pressed="true"] { border-color:var(--brand); background:var(--today); color:var(--brand); }
+    .zoom { display:flex; gap:4px; margin-left:auto; }
+    .zoom button { font-size:12px; min-width:32px; padding:5px 9px; }
+    .chart-frame { border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+    .chart-scroll { overflow:auto; }
+    .chart { position:relative; min-width:960px; height:552px; }
+    .ruler { position:absolute; left:0; right:0; height:44px; background:var(--shell); border-bottom:1px solid var(--line); }
+    .axis-title { position:absolute; left:16px; top:15px; font-size:10px; font-weight:600; color:var(--muted); }
+    .gridline { position:absolute; top:0; bottom:0; border-left:1px solid var(--line); pointer-events:none; }
+    .month { position:absolute; top:15px; text-align:center; color:var(--muted); font-size:10px; font-weight:600; letter-spacing:.03em; }
+    .dayline { position:absolute; top:44px; bottom:0; border-left:1px solid var(--subtle); pointer-events:none; }
+    .daynumber { position:absolute; top:46px; text-align:center; color:var(--muted); font-size:9px; }
+    .today-line { position:absolute; top:44px; bottom:0; border-left:1px dashed var(--now); pointer-events:none; }
+    .today-tag { position:absolute; top:46px; color:var(--now); background:var(--surface); font-size:9px; font-weight:600; padding:2px 5px; white-space:nowrap; }
+    .row-rule { position:absolute; left:0; right:0; border-top:1px solid var(--line); }
+    .stage-label { position:absolute; left:16px; width:138px; background:var(--surface); padding:0 5px 5px 0; }
+    .stage-label strong { display:block; font-size:12px; font-weight:600; }
+    .stage-label .court { font-size:10px; color:var(--muted); margin:7px 0 10px; }
+    .stage-label .status { font-size:10px; color:var(--muted); }
+    .stage-label[data-state="active"] .status { color:var(--brand); }
+    .stage-band { position:absolute; height:52px; border:1px solid var(--tone); border-radius:5px; padding:7px 12px; text-align:left; overflow:hidden; background:var(--surface); }
+    .stage-band::before { content:""; position:absolute; inset:0 auto 0 0; width:var(--fact); background:var(--tint); }
+    .stage-band::after { content:""; position:absolute; inset:0 0 0 var(--fact); background:repeating-linear-gradient(-45deg,transparent 0 5px,color-mix(in srgb,var(--tone) 13%,transparent) 5px 6px); }
+    .stage-band[data-state="potential"] { border-style:dashed; }
+    .stage-band strong, .stage-band small { position:relative; z-index:1; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .stage-band strong { font-size:12px; font-weight:600; color:var(--tone); }
+    .stage-band small { font-size:10px; color:var(--muted); margin-top:4px; }
+    .stage-band:hover { box-shadow:0 0 0 2px color-mix(in srgb,var(--tone) 16%,transparent); background:var(--surface); }
+    .event-connector { position:absolute; width:0; border-left:1px solid var(--tone); pointer-events:none; }
+    .event-connector.planned { border-left-style:dashed; }
+    .event-dot { position:absolute; width:8px; height:8px; border:1.5px solid var(--tone); border-radius:50%; background:var(--tone); pointer-events:none; }
+    .event-dot.planned { background:var(--surface); }
+    .event { position:absolute; z-index:2; width:138px; padding:3px 7px; border-radius:4px; text-align:left; }
+    .event time { display:block; font-size:9px; color:var(--muted); }
+    .event strong { display:block; font-size:10px; font-weight:400; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .event[aria-pressed="true"] { background:var(--today); border-color:var(--tone); }
+    .event[aria-pressed="true"] strong { font-weight:600; }
+    .potential-note { position:absolute; color:var(--muted); font-size:10px; }
+    .legend { display:flex; align-items:center; flex-wrap:wrap; gap:20px; border-top:1px solid var(--line); padding:10px 15px; font-size:10px; color:var(--muted); }
+    .legend span { display:flex; gap:7px; align-items:center; }
+    .legend i { display:inline-block; width:17px; height:9px; border-radius:2px; background:var(--green-bg); border:1px solid var(--green); }
+    .legend .hatch { background:repeating-linear-gradient(-45deg,transparent 0 3px,var(--line) 3px 4px); }
+    .legend .dash { background:transparent; border-style:dashed; border-color:var(--purple); }
+    .legend .dot { border-radius:50%; width:7px; height:7px; background:var(--surface); border-color:var(--muted); }
+    .detail { display:grid; grid-template-columns:210px minmax(0,1fr); gap:22px; background:var(--shell); border:1px solid var(--line); border-radius:8px; padding:14px 16px; min-height:96px; }
+    .detail-kind { color:var(--brand); font-size:10px; }
+    .detail h3 { font-size:15px; font-weight:600; margin:5px 0; }
+    .detail-date { font-size:12px; color:var(--muted); }
+    .detail-info { align-self:center; }
+    .detail-location { font-weight:600; font-size:12px; }
+    .detail-note { color:var(--muted); font-size:12px; margin-top:7px; line-height:1.6; }
+    .statusbar { background:var(--shell); color:var(--muted); font-size:10px; padding:9px 22px; display:flex; justify-content:space-between; gap:12px; }
+    .error { padding:30px; color:var(--now); }
+    [hidden] { display:none !important; }
+    .app.sidebar-hidden { grid-template-columns:minmax(0,1fr); }
+    .app.sidebar-hidden aside { display:none; }
+    @media (max-width:1100px) { .app { grid-template-columns:minmax(0,1fr); } aside { display:none; } .app.sidebar-open { grid-template-columns:244px minmax(0,1fr); } .app.sidebar-open aside { display:flex; } }
+    @media (max-width:700px) { .heading { padding:17px 16px 10px; gap:12px; } .heading h1 { font-size:22px; } .workspace { padding:16px; } .case-header { align-items:flex-start; } .amount { display:none; } h2 { font-size:19px; } .case-meta { flex-wrap:wrap; gap:6px; } .tabs { justify-content:flex-start; padding:0 12px 10px; gap:0; } .tabs span { padding:8px; font-size:12px; } .toolbar { flex-wrap:wrap; gap:8px; } .toolbar .count { display:none; } .detail { grid-template-columns:1fr; gap:12px; } .window-controls { display:none; } .app.sidebar-open { grid-template-columns:minmax(0,1fr); } .app.sidebar-open aside { display:none; } .statusbar span:last-child { display:none; } }
+    @media (forced-colors:active) { .stage-band, .event, button { border-color:ButtonText; } .stage-band::before, .stage-band::after { display:none; } }
+  </style>
+</head>
+<body>
+  <header class="titlebar"><span class="app-mark">▧</span> LawMatic Calendar <span class="preview-label">ИНТЕРАКТИВНЫЙ МАКЕТ · WINUI</span><span class="window-controls" aria-hidden="true">─　 □　 ×</span></header>
+  <div class="app" id="app">
+    <aside>
+      <div class="eyebrow">СУДЕБНЫЕ ДЕЛА</div>
+      <div class="case-nav" aria-current="page"><span class="mono">А40-87432/2026</span><strong>Альфа → Вектор</strong><span class="muted" style="font-size:12px">Договор поставки</span><span class="brand" style="font-size:11px">● &nbsp;Апелляция</span></div>
+      <div class="divider"></div>
+      <div class="next-event"><span class="eyebrow">БЛИЖАЙШЕЕ СОБЫТИЕ</span><span class="next-date">29 сентября</span><span style="font-size:12px">11:00 · Судебное заседание</span><span class="muted" style="font-size:11px">9-й арбитражный АС · зал 12</span></div>
+      <div class="divider"></div>
+      <div class="demo-note">Демоданные на 19 сентября 2026.<br>Даты будущих стадий условные.</div>
+      <div class="aside-footer"><div class="divider">Your day. Your rhythm.</div><div style="font-size:10px">Calendar on Kalends.WinUI</div></div>
+    </aside>
+    <main>
+      <div class="heading"><button class="icon-button" id="sidebar" aria-label="Показать или скрыть боковую панель">☰</button><div><h1>Судебный таймлайн</h1><p>Стадии, события и дальнейший ход дела</p></div><button class="icon-button theme" id="theme" aria-label="Переключить тему" title="Светлая / тёмная тема">☾</button></div>
+      <nav class="tabs" aria-label="Режимы календаря (в макете доступен судебный таймлайн)"><span>Agenda</span><span>Day</span><span>Week</span><span>Month</span><span>Year</span><span class="active" aria-current="page">Судебный таймлайн</span></nav>
+      <section class="workspace">
+        <div class="case-header"><div><div class="case-meta"><span class="mono" id="number"></span><span class="badge">Апелляция · в производстве</span></div><h2 id="caseTitle"></h2><div class="subject" id="subject"></div></div><div class="amount"><span class="muted" style="font-size:11px">Сумма требований</span><strong id="amount"></strong><span class="muted" style="font-size:10px">Демонстрационное дело</span></div></div>
+        <div class="toolbar"><strong>Ход дела</strong><span class="count">3 стадии · 8 событий</span><button id="plan" class="plan" aria-pressed="true">Показать план</button><div class="zoom"><button id="zoomOut" aria-label="Уменьшить масштаб">−</button><button id="fit">Весь процесс</button><button id="zoomIn" aria-label="Увеличить масштаб">＋</button></div></div>
+        <div class="chart-frame"><div class="chart-scroll" id="scroller"><div class="chart" id="chart" role="group" aria-label="Таймлайн стадий и событий судебного дела"></div></div><div class="legend"><span><i></i>Факт</span><span><i class="hatch"></i>План</span><span><i class="dash"></i>Возможная стадия</span><span><i class="dot"></i>Событие</span></div></div>
+        <section class="detail" id="detail" aria-live="polite"><div><div class="detail-kind" id="detailKind"></div><h3 id="detailTitle"></h3><div class="detail-date" id="detailDate"></div></div><div class="detail-info"><div class="detail-location" id="detailLocation"></div><div class="detail-note" id="detailNote"></div></div></section>
+      </section>
+      <footer class="statusbar"><span>Демоданные · 19 сентября 2026 · Нажмите на стадию или событие, чтобы увидеть детали</span><span>UTC+03:00</span></footer>
+    </main>
+  </div>
+  <script type="module">
+    const $ = id => document.getElementById(id);
+    // Calendar-day coordinates match DateOnly.DayNumber in the native control.
+    const day = value => Date.parse(value + 'T00:00:00Z') / 86400000;
+    const fmt = (value, full = false) => new Date(value + 'T00:00:00Z').toLocaleDateString('ru-RU', { day:'numeric',month:full?'long':'short', ...(full ? {year:'numeric'} : {}), timeZone:'UTC' }).replace(/\.$/,'');
+    let data, zoom = 1, showPlan = true, selected = 'hearing-appeal';
+    const labelWidth = 166, rowHeight = 164;
+    function node(tag, cls, text, parent = $('chart')) { const n = document.createElement(tag); n.className = cls; if (text) n.textContent = text; parent.append(n); return n; }
+    function place(n, left, top, width) { n.style.left = left + 'px'; n.style.top = top + 'px'; if (width !== undefined) n.style.width = width + 'px'; return n; }
+    function tone(n, value) { n.style.setProperty('--tone', `var(--${value})`); n.style.setProperty('--tint', `var(--${value}-bg)`); }
+    function selectEvent(e) { selected = e.id; $('detailKind').textContent = e.kind.toUpperCase() + (e.planned?' · ЗАПЛАНИРОВАНО':' · СОСТОЯЛОСЬ'); $('detailTitle').textContent=e.title; $('detailDate').textContent=fmt(e.date,true)+(e.time?' · '+e.time:''); $('detailLocation').textContent=e.location; $('detailNote').textContent=e.note; }
+    function selectStage(s) { selected=s.id; $('detailKind').textContent='СТАДИЯ · '+s.status.toUpperCase(); $('detailTitle').textContent=s.title; $('detailDate').textContent=fmt(s.start)+' — '+fmt(s.end)+' 2026'; $('detailLocation').textContent=s.court; $('detailNote').textContent=s.note; }
+    function render() {
+      if (!data) return;
+      const focusId = document.activeElement?.dataset.item;
+      const chart = $('chart'); chart.replaceChildren();
+      const width = Math.max(960,$('scroller').clientWidth) * zoom;
+      const stages=data.stages.filter(s=>showPlan || s.state!=='potential');
+      chart.style.width = width+'px'; chart.style.height=(60+stages.length*rowHeight)+'px';
+      const x = d => labelWidth+(day(d)-day(data.start))/(day(data.end)-day(data.start))*(width-labelWidth-24);
+      const dayWidth=(width-labelWidth-24)/(day(data.end)-day(data.start));
+      $('zoomOut').disabled=zoom<=1; $('zoomIn').disabled=zoom>=4; $('fit').textContent=zoom===1?'Весь процесс':`${zoom}× · вписать`;
+      node('div','ruler'); node('div','axis-title','ИНСТАНЦИЯ / 2026');
+      for(let m=3;m<12;m++) { const date=`2026-${String(m+1).padStart(2,'0')}-01`; const next=m===11?data.end:`2026-${String(m+2).padStart(2,'0')}-01`; const left=x(date); place(node('div','gridline'),left,0); place(node('div','month',new Date(date+'T00:00:00Z').toLocaleDateString('ru-RU',{month:'short',timeZone:'UTC'}).replace('.','').toUpperCase()),left,15,x(next)-left); }
+      if(dayWidth>=10) for(let d=day(data.start);d<day(data.end);d++) {const left=labelWidth+(d-day(data.start))*dayWidth; place(node('div','dayline'),left,44); if(dayWidth>=20)place(node('div','daynumber',String(new Date(d*86400000).getUTCDate())),left,46,dayWidth);}
+      place(node('div','today-line'),x(data.today),44);
+      place(node('div','today-tag','19 СЕН · СЕГОДНЯ (ДЕМО)'),Math.max(labelWidth,Math.min(width-160,x(data.today)-72)),46);
+      stages.forEach((s,index)=>{
+        const y=76+index*rowHeight;
+        place(node('div','row-rule'),0,y+rowHeight-16);
+        const label=place(node('div','stage-label'),16,y+2); label.dataset.state=s.state;
+        node('strong','',s.title,label);node('div','court',s.court,label);node('div','status',s.status,label);
+        const visualEnd=!showPlan&&s.state==='active'?data.today:s.end;
+        const left=x(s.start), bandWidth=x(visualEnd)+dayWidth-left;
+        const fact=s.state==='potential'?0:s.state==='active'?Math.min(bandWidth,Math.max(0,x(data.today)+dayWidth-left)):bandWidth;
+        const band=place(node('button','stage-band'),left,y,bandWidth); band.dataset.state=s.state; band.dataset.item=s.id; tone(band,s.tone); band.style.setProperty('--fact',fact+'px');
+        node('strong','',s.title,band);node('small','',fmt(s.start)+' — '+fmt(visualEnd)+(s.state==='potential'?' · возможно':''),band);
+        band.title=s.note; band.setAttribute('aria-label',`${s.title}, ${s.status}, ${fmt(s.start)} — ${fmt(visualEnd)}`);band.onclick=()=>{selectStage(s);render();};
+        const ends=[labelWidth-10,labelWidth-10];
+        data.events.filter(e=>e.stage===s.id&&(showPlan||!e.planned)).sort((a,b)=>a.date.localeCompare(b.date)).forEach(e=>{
+          const point=x(e.date)+dayWidth/2, labelLeft=Math.max(labelWidth,Math.min(width-150,point-12));
+          const lane=ends[0]+8<=labelLeft?0:1; ends[lane]=labelLeft+138;const labelTop=y+69+lane*40;
+          const line=place(node('div','event-connector'+(e.planned?' planned':'')),point,y+53);tone(line,s.tone);line.style.height=(labelTop+6-y-53)+'px';
+          tone(place(node('div','event-dot'+(e.planned?' planned':'')),point-4,y+60),s.tone);
+          const event=place(node('button','event'),labelLeft,labelTop);tone(event,s.tone);event.dataset.item=e.id;event.setAttribute('aria-pressed',String(e.id===selected));event.title=e.note;
+          const date=node('time','',fmt(e.date)+(e.time?' · '+e.time:''),event);date.dateTime=e.date;
+          node('strong','',e.title,event);event.setAttribute('aria-label',e.title+', '+fmt(e.date)+(e.time?' '+e.time:'')+(e.planned?', запланировано':''));event.onclick=()=>{selectEvent(e);render();};
+        });
+        if(s.state==='potential')place(node('div','potential-note','После завершения апелляции · если решение будет обжаловано'),Math.max(labelWidth,left-190),y+78);
+      });
+      if(focusId) chart.querySelector(`[data-item="${focusId}"]`)?.focus({preventScroll:true});
+    }
+    $('theme').onclick=()=>{const dark=document.documentElement.dataset.theme!=='dark';document.documentElement.dataset.theme=dark?'dark':'light';$('theme').textContent=dark?'☀':'☾';};
+    $('sidebar').onclick=()=>{ $('app').classList.toggle(window.innerWidth<=1100?'sidebar-open':'sidebar-hidden'); };
+    $('zoomIn').onclick=()=>{zoom=Math.min(4,zoom+.5);render();};
+    $('zoomOut').onclick=()=>{zoom=Math.max(1,zoom-.5);render();};
+    $('fit').onclick=()=>{zoom=1;render();$('scroller').scrollLeft=0;};
+    $('plan').onclick=()=>{showPlan=!showPlan;$('plan').setAttribute('aria-pressed',String(showPlan));if(!showPlan&&(data.events.some(e=>e.id===selected&&e.planned)||data.stages.some(s=>s.id===selected&&s.state==='potential')))selectStage(data.stages.find(s=>s.state==='active'));render();};
+    new ResizeObserver(render).observe($('scroller'));
+    try { const result=await fetch('../src/LawMatic.Calendar/Assets/court-timeline.json');if(!result.ok)throw new Error('HTTP '+result.status);data=await result.json();$('number').textContent='ДЕЛО № '+data.number;$('caseTitle').textContent=data.title;$('subject').textContent=data.subject;$('amount').textContent=data.amount;selectEvent(data.events.find(e=>e.id===selected));render(); } catch(error) {node('div','error','Не удалось загрузить демоданные. Откройте превью через локальный HTTP-сервер, как описано в README.');console.error(error);}
+  </script>
+</body>
+</html>
