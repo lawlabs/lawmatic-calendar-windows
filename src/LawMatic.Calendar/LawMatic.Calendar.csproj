@@ -15,6 +15,7 @@
     <Nullable>enable</Nullable>
     <DefaultLanguage>en-US</DefaultLanguage>
     <AppxDefaultResourceQualifiers>Language=en-US</AppxDefaultResourceQualifiers>
+    <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
