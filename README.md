@@ -34,7 +34,7 @@ dotnet build src/LawMatic.Calendar/LawMatic.Calendar.csproj -c Debug -p:Platform
 ## Демо «Судебный таймлайн»
 
 После `Year` добавлена вкладка **Судебный таймлайн** (`Ctrl+6`). Это отдельный
-WinUI-компонент приложения; библиотека Kalends.WinUI не меняется.
+контроль отдельной библиотеки **CourtTimeline.WinUI**; библиотека Kalends.WinUI не меняется.
 
 ### Проверить на Windows
 
@@ -47,7 +47,9 @@ dotnet build src/LawMatic.Calendar/LawMatic.Calendar.csproj -c Debug -p:Platform
 ```
 
 Если локальная ветка уже существует, используйте `git switch codex/court-timeline-demo`.
-Рядом должен лежать репозиторий `kalends-winui`, как указано выше. Откройте
+Рядом должны лежать `kalends-winui` и новая библиотека `court-timeline-winui`.
+Ветка ссылается на `../court-timeline-winui/src/CourtTimeline.WinUI/CourtTimeline.WinUI.csproj`.
+Для CI сначала опубликуйте оба репозитория под тем же GitHub owner. Откройте
 `LawMaticCalendar.slnx` в Visual Studio, выберите приложение `LawMatic.Calendar`,
 платформу `x64` и профиль **LawMatic.Calendar (Package)**, затем запустите с F5.
 В приложении откройте вкладку **Судебный таймлайн** после `Year` или нажмите `Ctrl+6`.
@@ -74,7 +76,8 @@ python3 -m http.server 8765 --bind 127.0.0.1
 ```
 
 Откройте [интерактивное превью](http://127.0.0.1:8765/docs/court-timeline-preview.html).
-Это HTML-макет нативной вкладки; остальные режимы календаря в нём показаны только
+Это сохранённый HTML-макет исходного прототипа, а не проверка актуальной библиотеки;
+остальные режимы календаря в нём показаны только
 для контекста. Полный календарь по-прежнему запускается на Windows.
 
 ![Макет судебного таймлайна, светлая тема](docs/images/court-timeline-light.png)
@@ -82,10 +85,12 @@ python3 -m http.server 8765 --bind 127.0.0.1
 [Макет в тёмной теме](docs/images/court-timeline-dark.png)
 
 Превью и WinUI-компонент читают одни
-[демоданные](src/LawMatic.Calendar/Assets/court-timeline.json). Нативная отрисовка —
-в `src/LawMatic.Calendar/Controls/CourtTimelineView.xaml.cs`, макет —
+[демоданные](src/LawMatic.Calendar/Assets/court-timeline.json). Приложение преобразует их
+в публичную модель через `CourtTimelineDemo.ToTimelineData()`. Нативная отрисовка —
+в соседней библиотеке `court-timeline-winui`, макет —
 в `docs/court-timeline-preview.html`. Ось строится по календарным дням, конец
 стадии включает весь день, события стоят в центре дня.
 
-В этой итерации проверены HTML-превью, его элементы управления, JSON и структура
-XAML. Нативная сборка и проверка интерфейса WinUI требуют Windows с .NET 10 SDK.
+У библиотеки есть самостоятельный пример, тесты раскладки, NuGet-упаковка и Windows CI.
+Инструкция: `../court-timeline-winui/README.md`. Нативная сборка и проверка интерфейса
+WinUI требуют Windows с .NET 10 SDK.

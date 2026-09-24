@@ -19,6 +19,12 @@ jobs:
         with:
           repository: ${{ github.repository_owner }}/kalends-winui
           path: kalends-winui
+      # Publish the standalone library under the same owner before running this CI.
+      - name: Checkout CourtTimeline
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/court-timeline-winui
+          path: court-timeline-winui
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"

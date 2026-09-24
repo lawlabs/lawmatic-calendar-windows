@@ -23,6 +23,8 @@ public sealed partial class MainPage : Page
     public MainPage()
     {
         InitializeComponent();
+        CourtTimeline.Data = CourtTimelineDemo.Load().ToTimelineData();
+        CourtTimeline.SelectedItem = new(global::CourtTimeline.CourtTimelineItemKind.Event, "hearing-appeal");
         Scheduler.Culture = DisplayCulture;
         Scheduler.FirstDayOfWeek = DayOfWeek.Monday;
         Scheduler.CreateEvent = draft => new CalendarEvent { Start = draft.Start, End = draft.End, IsAllDay = draft.IsAllDay };

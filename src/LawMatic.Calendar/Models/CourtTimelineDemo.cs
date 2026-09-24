@@ -14,8 +14,27 @@ public sealed class CourtTimelineDemo
     public string Title { get; set; } = "";
     public string Subject { get; set; } = "";
     public string Amount { get; set; } = "";
-    public List<CourtStage> Stages { get; set; } = [];
-    public List<CourtEvent> Events { get; set; } = [];
+    public List<CourtStageDemo> Stages { get; set; } = [];
+    public List<CourtEventDemo> Events { get; set; } = [];
+
+    public CourtTimeline.CourtTimelineData ToTimelineData() => new()
+    {
+        Start = Start, End = End, Today = Today, Number = Number, Title = Title,
+        Subject = Subject, Amount = Amount, Status = "Апелляция · в производстве",
+        Stages = Stages.Select(stage => new CourtTimeline.CourtStage
+        {
+            Id = stage.Id, Title = stage.Title, Court = stage.Court, Status = stage.Status,
+            State = Enum.Parse<CourtTimeline.CourtStageState>(stage.State, ignoreCase: true),
+            Tone = Enum.Parse<CourtTimeline.CourtStageTone>(stage.Tone, ignoreCase: true),
+            Start = stage.Start, End = stage.End, Note = stage.Note
+        }).ToArray(),
+        Events = Events.Select(item => new CourtTimeline.CourtEvent
+        {
+            Id = item.Id, StageId = item.Stage, Date = item.Date, Time = item.Time,
+            Title = item.Title, Kind = item.Kind, Location = item.Location,
+            Note = item.Note, Planned = item.Planned
+        }).ToArray()
+    };
 
     public static CourtTimelineDemo Load()
     {
@@ -27,7 +46,7 @@ public sealed class CourtTimelineDemo
     }
 }
 
-public sealed class CourtStage
+public sealed class CourtStageDemo
 {
     public string Id { get; set; } = "";
     public string Title { get; set; } = "";
@@ -40,7 +59,7 @@ public sealed class CourtStage
     public string Note { get; set; } = "";
 }
 
-public sealed class CourtEvent
+public sealed class CourtEventDemo
 {
     public string Id { get; set; } = "";
     public string Stage { get; set; } = "";
