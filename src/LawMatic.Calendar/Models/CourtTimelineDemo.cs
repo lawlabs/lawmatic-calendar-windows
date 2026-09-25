@@ -21,12 +21,19 @@ public sealed class CourtTimelineDemo
     {
         Start = Start, End = End, Today = Today, Number = Number, Title = Title,
         Subject = Subject, Amount = Amount, Status = "Апелляция · в производстве",
-        Stages = Stages.Select(stage => new CourtTimeline.CourtStage
+        Stages = Stages.Select(stage =>
         {
-            Id = stage.Id, Title = stage.Title, Court = stage.Court, Status = stage.Status,
-            State = Enum.Parse<CourtTimeline.CourtStageState>(stage.State, ignoreCase: true),
-            Tone = Enum.Parse<CourtTimeline.CourtStageTone>(stage.Tone, ignoreCase: true),
-            Start = stage.Start, End = stage.End, Note = stage.Note
+            var state = Enum.Parse<CourtTimeline.CourtStageState>(stage.State, ignoreCase: true);
+            return new CourtTimeline.CourtStage
+            {
+                Id = stage.Id, Title = stage.Title, Court = stage.Court, Status = stage.Status,
+                State = state,
+                Tone = Enum.Parse<CourtTimeline.CourtStageTone>(stage.Tone, ignoreCase: true),
+                Start = stage.Start,
+                Closed = state == CourtTimeline.CourtStageState.Completed ? stage.End : null,
+                Deadline = state == CourtTimeline.CourtStageState.Completed ? null : stage.End,
+                Note = stage.Note
+            };
         }).ToArray(),
         Events = Events.Select(item => new CourtTimeline.CourtEvent
         {

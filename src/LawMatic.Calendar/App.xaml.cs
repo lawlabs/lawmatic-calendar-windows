@@ -27,7 +27,6 @@ public partial class App : Application
 
     private static void UseEnglish()
     {
-        Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = "en-US";
         CultureInfo.DefaultThreadCurrentCulture = CultureInfo.GetCultureInfo("en-US");
         CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.GetCultureInfo("en-US");
     }

@@ -94,3 +94,17 @@ python3 -m http.server 8765 --bind 127.0.0.1
 У библиотеки есть самостоятельный пример, тесты раскладки, NuGet-упаковка и Windows CI.
 Инструкция: `../court-timeline-winui/README.md`. Нативная сборка и проверка интерфейса
 WinUI требуют Windows с .NET 10 SDK.
+
+## Inno Setup installer (x64)
+
+Install .NET 10 SDK and Inno Setup 6 on the build machine. From the repository root:
+
+```powershell
+.\publish\build-inno.ps1
+```
+
+The script publishes without MSIX and includes the .NET and Windows App SDK runtimes.
+It checks for `Kalends.WinUI.dll` and `CourtTimeline.WinUI.dll`, then creates
+`artifacts\inno\LawMaticCalendar-Setup-1.0.1-x64.exe`.
+The installer includes the entire published directory, including library resources.
+Launch the installed app from its shortcut or executable; no MSIX package is needed.
